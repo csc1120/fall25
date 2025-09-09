@@ -20,7 +20,7 @@ import java.util.Scanner;
  */
 public class FilesI {
     public static void main(String[] args) {
-        // Creating file
+        // Creating file object
         File file = new File("fred.txt");
         // Creating directory
         Path dir = Paths.get("data");
@@ -34,6 +34,7 @@ public class FilesI {
         }
 
         try(PrintWriter pw = new PrintWriter(file)) {
+            // Creating a file
             if(file.createNewFile()) {
                 System.out.println("Created file: " + file);
             }
