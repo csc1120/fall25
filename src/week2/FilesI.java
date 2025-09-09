@@ -1,48 +1,58 @@
 /*
  * Course: CSC-1120
- * Assignment name
- * File name
+ * Files I
+ * FilesI
  * Name: Sean Jones
- * Last Updated:
+ * Last Updated: 09-09-25
  */
 package week2;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Scanner;
 
+/**
+ * Introduction to Text Files and File and Path objects
+ */
 public class FilesI {
     public static void main(String[] args) {
-        Path path = Paths.get("data", "text", "fred.txt");
-        File data = new File("data");
-        System.out.println(data.exists());
-        File file = new File("data/fred.txt");
-        System.out.println(file.exists());
-        System.out.println(file.length());
-        try(PrintWriter pw = new PrintWriter(path.toFile())) { // try-with-resources
-            pw.println("This is a line of text");
-            pw.println("So is this");
-            pw.println("Me too");
-            System.out.println(file.getAbsolutePath());
-            // auto-close
-        } catch(FileNotFoundException e) {
-            System.out.println(e.getMessage());
+        // Creating file
+        File file = new File("fred.txt");
+        // Creating directory
+        Path dir = Paths.get("data");
+        if(dir.toFile().mkdir()) {
+            System.out.println("Create directory " + dir);
         }
-        System.out.println(file.exists());
+        // Create nested directory
+        Path dirs = Paths.get("data", "text");
+        if(dirs.toFile().mkdirs()) {
+            System.out.println("Created directory " + dirs);
+        }
+
+        try(PrintWriter pw = new PrintWriter(file)) {
+            if(file.createNewFile()) {
+                System.out.println("Created file: " + file);
+            }
+            pw.println("This is a text file");
+            pw.println("It really is");
+            pw.println("I mean it");
+        } catch(FileNotFoundException e) {
+            System.out.println("Cannot open file");
+        } catch (IOException e) {
+            System.out.println("Cannot create file");
+        }
         System.out.println(file.length());
 
         try(Scanner read = new Scanner(file)) {
-//            while(read.hasNext()) {
-//                System.out.println(read.next());
-//            }
-            System.out.println(read.nextLine());
-            System.out.println(read.nextLine());
-            System.out.println(read.nextLine());
+            while(read.hasNextLine()) {
+                System.out.println(read.nextLine());
+            }
         } catch(FileNotFoundException e) {
-            System.out.println(e.getMessage());
+            System.out.println("Cannot read file");
         }
     }
 }
