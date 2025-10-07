@@ -424,18 +424,13 @@ public class SJArrayList<E> implements Serializable, Cloneable, Iterable<E>, Lis
      *                                   (fromIndex < 0 || toIndex > size() || toIndex < fromIndex)
      */
     public void removeRange(int fromIndex, int toIndex) throws IndexOutOfBoundsException {
-        validateIndex(fromIndex);
-        validateIndex(toIndex);
-        if (toIndex < fromIndex) {
+        if (fromIndex < 0 || toIndex > this.size || fromIndex > toIndex) {
             throw new IndexOutOfBoundsException();
         }
-        Iterator<E> it = this.iterator();
-        for (int i = 0; i < fromIndex; ++i) {
+        ListIterator<E> it = this.listIterator(fromIndex);
+        for(int i = fromIndex; i < toIndex; ++i) {
             it.next();
-        }
-        while (fromIndex < toIndex) {
             it.remove();
-            ++fromIndex;
         }
     }
 
@@ -485,8 +480,8 @@ public class SJArrayList<E> implements Serializable, Cloneable, Iterable<E>, Lis
             if (!this.hasNext()) {
                 throw new NoSuchElementException();
             }
-            ++this.lastReturned;
-            return SJArrayList.this.data[index++];
+            this.lastReturned = this.index;
+            return SJArrayList.this.data[this.index++];
         }
 
         @Override
@@ -494,7 +489,10 @@ public class SJArrayList<E> implements Serializable, Cloneable, Iterable<E>, Lis
             if (this.lastReturned < 0) {
                 throw new IllegalStateException();
             }
-            SJArrayList.this.remove(this.index);
+            SJArrayList.this.remove(this.lastReturned);
+            if(this.lastReturned < this.index) {
+                --this.index;
+            }
             this.lastReturned = -1;
         }
 
