@@ -35,10 +35,11 @@ public class FilesII {
             System.out.println(dis.readInt());
             System.out.println(dis.readDouble());
             System.out.println(dis.readDouble());
-            System.out.println(dis.readChar());
-            System.out.println(dis.readChar());
-            System.out.println(dis.readChar());
-            System.out.println(dis.readChar());
+            System.out.println(dis.readUTF());
+//            System.out.println(dis.readChar());
+//            System.out.println(dis.readChar());
+//            System.out.println(dis.readChar());
+//            System.out.println(dis.readChar());
         } catch(IOException e) {
             System.out.println("IO Error");
         }
