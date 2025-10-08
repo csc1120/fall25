@@ -11,7 +11,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.NoSuchElementException;
 import java.util.function.Consumer;
 
 /**
@@ -34,122 +33,11 @@ public class SJLinkedList<E> implements List<E> {
         }
     }
 
-    private class Iter implements java.util.Iterator<E> {
-        private Node<E> next;
-        private Node<E> lastReturned;
-        private Node<E> previous;
-        private Node<E> lastReturnedPrevious;
-
-        private Iter() {
-            this.next = SJLinkedList.this.head;
-            this.lastReturned = null;
-            this.lastReturnedPrevious = null;
-            this.previous = null;
-        }
-
-        /**
-         * Returns {@code true} if the iteration has more elements.
-         * (In other words, returns {@code true} if {@link #next} would
-         * return an element rather than throwing an exception.)
-         *
-         * @return {@code true} if the iteration has more elements
-         */
-        @Override
-        public boolean hasNext() {
-            return this.next != null;
-        }
-
-        /**
-         * Returns the next element in the iteration.
-         *
-         * @return the next element in the iteration
-         * @throws NoSuchElementException if the iteration has no more elements
-         */
-        @Override
-        public E next() {
-            if(this.next == null) {
-                throw new NoSuchElementException();
-            }
-            this.lastReturnedPrevious = this.previous;
-            this.previous = this.next;
-            this.lastReturned = this.next;
-            this.next = this.next.next;
-            return this.lastReturned.data;
-        }
-
-        /**
-         * Removes from the underlying collection the last element returned
-         * by this iterator (optional operation).  This method can be called
-         * only once per call to {@link #next}.
-         * <p>
-         * The behavior of an iterator is unspecified if the underlying collection
-         * is modified while the iteration is in progress in any way other than by
-         * calling this method, unless an overriding class has specified a
-         * concurrent modification policy.
-         * <p>
-         * The behavior of an iterator is unspecified if this method is called
-         * after a call to the {@link #forEachRemaining forEachRemaining} method.
-         *
-         * @throws UnsupportedOperationException if the {@code remove}
-         *                                       operation is not supported by this iterator
-         * @throws IllegalStateException         if the {@code next} method has not
-         *                                       yet been called, or the {@code remove} method has already
-         *                                       been called after the last call to the {@code next}
-         *                                       method
-         * @implSpec The default implementation throws an instance of
-         * {@link UnsupportedOperationException} and performs no other action.
-         */
-        @Override
-        public void remove() {
-            if(this.lastReturned == null) {
-                throw new IllegalStateException();
-            }
-            if(this.lastReturnedPrevious == null) {
-                SJLinkedList.this.head = this.next;
-            } else {
-                this.lastReturnedPrevious.next = this.next;
-            }
-            this.previous = this.lastReturnedPrevious;
-            this.lastReturned = null;
-            --SJLinkedList.this.size;
-        }
-
-        /**
-         * Performs the given action for each remaining element until all elements
-         * have been processed or the action throws an exception.  Actions are
-         * performed in the order of iteration, if that order is specified.
-         * Exceptions thrown by the action are relayed to the caller.
-         * <p>
-         * The behavior of an iterator is unspecified if the action modifies the
-         * collection in any way (even by calling the {@link #remove remove} method
-         * or other mutator methods of {@code Iterator} subtypes),
-         * unless an overriding class has specified a concurrent modification policy.
-         * <p>
-         * Subsequent behavior of an iterator is unspecified if the action throws an
-         * exception.
-         *
-         * @param action The action to be performed for each element
-         * @throws NullPointerException if the specified action is null
-         * @implSpec <p>The default implementation behaves as if:
-         * <pre>{@code
-         *     while (hasNext())
-         *         action.accept(next());
-         * }</pre>
-         * @since 1.8
-         */
-        @Override
-        public void forEachRemaining(Consumer<? super E> action) {
-            while(this.hasNext()) {
-                action.accept(this.next());
-            }
-        }
-    }
-
     private Node<E> head;
     private int size;
 
     /**
-     * Constructor for the list
+     * Construtor for the list
      */
     public SJLinkedList() {
         this.head = null;
@@ -183,7 +71,7 @@ public class SJLinkedList<E> implements List<E> {
 
     @Override
     public Iterator<E> iterator() {
-        return new Iter();
+        return null;
     }
 
     @Override
@@ -266,7 +154,7 @@ public class SJLinkedList<E> implements List<E> {
     }
 
     @Override
-    public E get(int index) throws IndexOutOfBoundsException { // O(n)
+    public E get(int index) throws IndexOutOfBoundsException {
         validateIndex(index);
         Node<E> current = this.head;
         for(int i = 0; i < index; ++i) {
