@@ -7,6 +7,7 @@
  */
 package week1;
 
+import java.util.ArrayList;
 import java.util.Scanner;
 
 /**
@@ -24,6 +25,7 @@ public class JavaReview {
         for(Person p : people) {
             System.out.println(p);
         }
+        ArrayList<Person> p = new ArrayList<>();
     }
 
     private static Person makeMSOEStudent(Scanner in) {

@@ -11,12 +11,15 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.NoSuchElementException;
 import java.util.function.Consumer;
 
 /**
  * Simple Linked List implementation
+ *
  * @param <E> the element stored in the list
  */
+@SuppressWarnings("unused")
 public class SJLinkedList<E> implements List<E> {
     private static class Node<E> {
         private E data;
@@ -33,11 +36,70 @@ public class SJLinkedList<E> implements List<E> {
         }
     }
 
+    private class Iter implements Iterator<E> {
+        private Node<E> next;
+        private Node<E> previous;
+        private Node<E> lastReturned;
+        private Node<E> lastReturnedPrevious;
+
+        private Iter() {
+            this.next = SJLinkedList.this.head;
+            this.previous = null;
+            this.lastReturned = null;
+            this.lastReturnedPrevious = null;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return this.next != null;
+        }
+
+        @Override
+        public E next() {
+            if (this.next == null) {
+                throw new NoSuchElementException();
+            }
+            // Update all the instance variables
+            this.lastReturnedPrevious = this.previous;
+            this.lastReturned = this.next;
+            this.previous = this.next;
+            this.next = this.next.next;
+            return lastReturned.data;
+        }
+
+        @Override
+        public void remove() {
+            if (this.lastReturned == null) {
+                throw new IllegalStateException();
+            }
+            if (this.lastReturnedPrevious == null) { //removing the head
+                SJLinkedList.this.head = this.next;
+            } else {
+                this.lastReturnedPrevious.next = this.next;
+            }
+            // Update instance variables
+            this.previous = this.lastReturnedPrevious;
+            // lastReturned is now deleted
+            this.lastReturned = null;
+            // since lastReturned is null, this reference also does not exist
+            this.lastReturnedPrevious = null;
+            // Update the LinkedList's size
+            --SJLinkedList.this.size;
+        }
+
+        @Override
+        public void forEachRemaining(Consumer<? super E> action) {
+            while (this.hasNext()) {
+                action.accept(this.next());
+            }
+        }
+    }
+
     private Node<E> head;
     private int size;
 
     /**
-     * Construtor for the list
+     * Constructor for the list
      */
     public SJLinkedList() {
         this.head = null;
@@ -58,9 +120,9 @@ public class SJLinkedList<E> implements List<E> {
     @Override
     public boolean contains(Object o) { // O(n)
         Node<E> current = head;
-        for(int i = 0; i < this.size; ++i) {
-            if(current != null) {
-                if(current.data.equals(o)) {
+        for (int i = 0; i < this.size; ++i) {
+            if (current != null) {
+                if (current.data.equals(o)) {
                     return true;
                 }
             }
@@ -71,34 +133,42 @@ public class SJLinkedList<E> implements List<E> {
 
     @Override
     public Iterator<E> iterator() {
-        return null;
+        return new Iter();
     }
 
     @Override
     public Object[] toArray() {
-        return new Object[0];
+        Object[] result = new Object[this.size];
+        Iterator<E> it = this.iterator();
+        for (int i = 0; i < this.size; ++i) { // O(n)
+            result[i] = it.next();
+        }
+        return result;
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T> T[] toArray(T[] a) {
-        return null;
+        if (a.length < this.size) {
+            a = (T[]) new Object[this.size];
+        }
+        Iterator<E> it = this.iterator();
+        for (int i = 0; i < this.size; ++i) { // O(n)
+            a[i] = (T) it.next();
+        }
+        if (a.length > this.size) {
+            a[this.size] = null;
+        }
+        return a;
     }
 
     @Override
     public boolean add(E e) { // O(n)
-        // make new node
-        // put data in node
-        // add node to list
-        // increment the size
-        // case 1 - head is null, nothing in the list
         Node<E> temp = new Node<>(e, null);
-        if(head == null) {
+        if (head == null) { // empty list
             this.head = temp;
-        } else {
-            Node<E> current = this.head;
-            while(current.next != null) {
-                current = current.next;
-            }
+        } else { // add to the end of the list
+            Node<E> current = getNode(this.size - 1);
             current.next = temp;
         }
         ++this.size;
@@ -107,12 +177,12 @@ public class SJLinkedList<E> implements List<E> {
 
     @Override
     public boolean remove(Object o) { // O(n)
-        if(this.head != null) {
+        if (this.head != null) {
             Node<E> current = this.head;
-            while(current.next != null && !current.next.data.equals(o)) {
+            while (current.next != null && !current.next.data.equals(o)) {
                 current = current.next;
             }
-            if(current.next != null) {
+            if (current.next != null) {
                 // remove it
                 current.next = current.next.next;
                 --this.size;
@@ -123,28 +193,52 @@ public class SJLinkedList<E> implements List<E> {
     }
 
     @Override
-    public boolean containsAll(Collection<?> c) {
-        return false;
+    public boolean containsAll(Collection<?> c) { // O(mn) = O(n)
+        for (Object o : c) { // O(m) - size of c not related to the List
+            if (!this.contains(o)) { // O(n)
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
     public boolean addAll(Collection<? extends E> c) {
-        return false;
+        Node<E> tail = getNode(this.size - 1); // O(n)
+        for (E e : c) { // O(m)
+            tail.next = new Node<>(e, null);
+            tail = tail.next;
+        }
+        return true;
     }
 
     @Override
-    public boolean addAll(int index, Collection<? extends E> c) {
-        return false;
+    public boolean addAll(int index, Collection<? extends E> c) throws IndexOutOfBoundsException {
+        if (index != this.size) {
+            validateIndex(index);
+        }
+        Node<E> current = index == 0 ? this.head : getNode(index - 1); // O(n)
+        for (E e : c) { // O(m)
+            if(index == 0) {
+                this.head = new Node<>(e, this.head);
+            } else {
+                current.next = new Node<>(e, current.next);
+            }
+            ++index;
+            current = current.next;
+        }
+        return true;
     }
+
 
     @Override
     public boolean removeAll(Collection<?> c) {
-        return false;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public boolean retainAll(Collection<?> c) {
-        return false;
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -154,28 +248,37 @@ public class SJLinkedList<E> implements List<E> {
     }
 
     @Override
-    public E get(int index) throws IndexOutOfBoundsException {
-        validateIndex(index);
-        Node<E> current = this.head;
-        for(int i = 0; i < index; ++i) {
-            current = current.next;
-        }
+    public E get(int index) throws IndexOutOfBoundsException { // O(n)
+        validateIndex(index); // O(1)
+        Node<E> current = getNode(index); // O(n)
         return current.data;
     }
 
+    /**
+     * Helper method to reduce duplicate code. Finds and returns the
+     * node at a given index
+     *
+     * @param index the index of the node
+     * @return the Node at the given index
+     */
+    private Node<E> getNode(int index) {
+        Node<E> current = this.head;
+        for (int i = 0; i < index; ++i) {
+            current = current.next;
+        }
+        return current;
+    }
+
     private void validateIndex(int index) throws IndexOutOfBoundsException {
-        if(index >= size || index < 0) {
+        if (index >= size || index < 0) {
             throw new IndexOutOfBoundsException();
         }
     }
 
     @Override
-    public E set(int index, E element) {
-        validateIndex(index);
-        Node<E> current = this.head;
-        for(int i = 0; i < index; ++i) {
-            current = current.next;
-        }
+    public E set(int index, E element) { // O(n)
+        validateIndex(index); // O(1)
+        Node<E> current = getNode(index); // O(n)
         E old = current.data;
         current.data = element;
         return old;
@@ -183,47 +286,71 @@ public class SJLinkedList<E> implements List<E> {
 
     @Override
     public void add(int index, E element) { // O(n)
-        if(index != this.size) {
-            validateIndex(index);
+        if (index != this.size) {
+            validateIndex(index); // O(1)
         }
-        if(index == 0) {
+        if (index == 0) {
             this.head = new Node<>(element, this.head);
         }
-        Node<E> current = this.head;
-        for(int i = 0; i < index - 1; ++i) {
-            current = current.next;
-        }
+        Node<E> current = getNode(index - 1); // O(n)
         current.next = new Node<>(element, current.next);
         ++this.size;
     }
 
     @Override
     public E remove(int index) {
-        return null;
+        validateIndex(index); // O(1)
+        E result;
+        if (index == 0) { // removing head
+            result = this.head.data;
+            this.head = this.head.next;
+            --this.size;
+        } else {
+            Node<E> previous = getNode(index - 1); // O(n)
+            result = previous.next.data; // store the data for the node we are going to remove
+            previous.next = previous.next.next; // point the previous node's next to the
+        }                                       //removed node's next
+        --this.size;
+        return result;
     }
 
     @Override
     public int indexOf(Object o) {
-        return 0;
+        Node<E> current = this.head;
+        for (int i = 0; i < this.size; ++i) { // O(n)
+            if (current.data.equals(o)) {
+                return i;
+            }
+            current = current.next;
+        }
+        return -1;
     }
 
     @Override
     public int lastIndexOf(Object o) {
-        return 0;
+        Node<E> current = this.head;
+        int last = -1;
+        for (int i = 0; i < this.size; ++i) { // O(n)
+            if (current.data.equals(o)) {
+                last = i;
+            }
+            current = current.next;
+        }
+        return last;
     }
 
     @Override
     public ListIterator<E> listIterator() {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public ListIterator<E> listIterator(int index) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public List<E> subList(int fromIndex, int toIndex) {
-        return List.of();
+        throw new UnsupportedOperationException();
     }
 }
