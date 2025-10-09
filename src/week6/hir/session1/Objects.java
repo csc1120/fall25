@@ -5,7 +5,7 @@
  * Name: Sean Jones
  * Last Updated:
  */
-package week6.hir;
+package week6.hir.session1;
 
 public class Objects {
     public static void main(String[] args) {

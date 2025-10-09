@@ -5,7 +5,7 @@
  * Name: Sean Jones
  * Last Updated:
  */
-package week6.hir;
+package week6.hir.session1;
 
 public class Person {
     public static final int DEFAULT_AGE = 20;
