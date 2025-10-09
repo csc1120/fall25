@@ -3,7 +3,7 @@
  * Linked List
  * SJLinkedList
  * Name: Sean Jones
- * Last Updated:
+ * Last Updated: 10-09-25
  */
 package week6;
 
