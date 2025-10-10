@@ -5,7 +5,7 @@
  * Name: Sean Jones
  * Last Updated:
  */
-package week6;
+package week6.hir.session2;
 
 public class PersonDriver {
     public static void main(String[] args) {

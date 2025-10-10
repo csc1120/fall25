@@ -179,7 +179,7 @@ public class SJLinkedList<E> implements List<E> {
     public boolean remove(Object o) { // O(n)
         if (this.head != null) {
             Node<E> current = this.head;
-            while (current.next != null && !current.next.data.equals(o)) {
+            while (current.next != null && !current.data.equals(o)) {
                 current = current.next;
             }
             if (current.next != null) {
