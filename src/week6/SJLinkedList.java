@@ -7,11 +7,13 @@
  */
 package week6;
 
+import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
@@ -35,7 +37,6 @@ public class SJLinkedList<E> implements List<E> {
             return "data: " + data;
         }
     }
-
     private class Iter implements Iterator<E> {
         private Node<E> next;
         private Node<E> previous;
@@ -119,14 +120,10 @@ public class SJLinkedList<E> implements List<E> {
 
     @Override
     public boolean contains(Object o) { // O(n)
-        Node<E> current = head;
-        for (int i = 0; i < this.size; ++i) {
-            if (current != null) {
-                if (current.data.equals(o)) {
-                    return true;
-                }
+        for (Node<E> current = this.head; current != null; current = current.next) {
+            if (Objects.equals(current.data, o)) {
+                return true;
             }
-            current = current.next;
         }
         return false;
     }
@@ -150,7 +147,7 @@ public class SJLinkedList<E> implements List<E> {
     @SuppressWarnings("unchecked")
     public <T> T[] toArray(T[] a) {
         if (a.length < this.size) {
-            a = (T[]) new Object[this.size];
+            a = (T[]) Array.newInstance(a.getClass().getComponentType(), this.size);
         }
         Iterator<E> it = this.iterator();
         for (int i = 0; i < this.size; ++i) { // O(n)
@@ -179,15 +176,21 @@ public class SJLinkedList<E> implements List<E> {
     public boolean remove(Object o) { // O(n)
         if (this.head != null) {
             Node<E> current = this.head;
-            while (current.next != null && !current.data.equals(o)) {
+            Node<E> prev = null;
+            while (current != null && !Objects.equals(current.data, o)) {
+                prev = current;
                 current = current.next;
             }
-            if (current.next != null) {
-                // remove it
-                current.next = current.next.next;
-                --this.size;
-                return true;
+            if(current == null) {
+                return false;
             }
+            if (current == this.head) {
+                this.head = this.head.next;
+            } else {
+                prev.next = current.next;
+            }
+            --this.size;
+            return true;
         }
         return false;
     }
@@ -204,29 +207,63 @@ public class SJLinkedList<E> implements List<E> {
 
     @Override
     public boolean addAll(Collection<? extends E> c) {
-        Node<E> tail = getNode(this.size - 1); // O(n)
-        for (E e : c) { // O(m)
-            tail.next = new Node<>(e, null);
-            tail = tail.next;
+        if (c.isEmpty()) {
+            return false;
         }
+        // Build a sub-list from c
+        Node<E> head = null;
+        Node<E> tail = null;
+        for (E e : c) {
+            Node<E> n = new Node<>(e, null);
+            if (head == null) {
+                head = n;
+                tail = n;
+            } else {
+                tail.next = n;
+                tail = tail.next;
+            }
+        }
+        if(this.head == null) {
+            this.head = head;
+        } else {
+            Node<E> current = getNode(this.size - 1);
+            current.next = head;
+        }
+        this.size += c.size();
         return true;
     }
 
     @Override
+    @SuppressWarnings("DataFlowIssue")
     public boolean addAll(int index, Collection<? extends E> c) throws IndexOutOfBoundsException {
+        if (c.isEmpty()) {
+            return false;
+        }
         if (index != this.size) {
             validateIndex(index);
         }
-        Node<E> current = index == 0 ? this.head : getNode(index - 1); // O(n)
-        for (E e : c) { // O(m)
-            if(index == 0) {
-                this.head = new Node<>(e, this.head);
+        // Build a sub-list from c
+        Node<E> head = null;
+        Node<E> tail = null;
+        for (E e : c) {
+            Node<E> n = new Node<>(e, null);
+            if (head == null) {
+                head = n;
+                tail = n;
             } else {
-                current.next = new Node<>(e, current.next);
+                tail.next = n;
+                tail = tail.next;
             }
-            ++index;
-            current = current.next;
         }
+        if (index == 0) {
+            tail.next = this.head;
+            this.head = head;
+        } else {
+            Node<E> prev = getNode(index - 1);
+            tail.next = prev.next;
+            prev.next = head;
+        }
+        this.size += c.size();
         return true;
     }
 
@@ -291,9 +328,10 @@ public class SJLinkedList<E> implements List<E> {
         }
         if (index == 0) {
             this.head = new Node<>(element, this.head);
+        } else {
+            Node<E> previous = getNode(index - 1); // O(n)
+            previous.next = new Node<>(element, previous.next);
         }
-        Node<E> current = getNode(index - 1); // O(n)
-        current.next = new Node<>(element, current.next);
         ++this.size;
     }
 
@@ -304,7 +342,6 @@ public class SJLinkedList<E> implements List<E> {
         if (index == 0) { // removing head
             result = this.head.data;
             this.head = this.head.next;
-            --this.size;
         } else {
             Node<E> previous = getNode(index - 1); // O(n)
             result = previous.next.data; // store the data for the node we are going to remove
