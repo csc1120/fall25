@@ -1,18 +1,25 @@
 /*
  * Course: CSC-1120
- * Assignment name
- * File name
+ * Stacks and Queues
+ * SJQueue
  * Name: Sean Jones
- * Last Updated:
+ * Last Updated: 10-14-25
  */
 package week7;
 
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
 
+/**
+ * A simple implementation of the PureQueue interface
+ * @param <E> the type of element stored in the queue
+ */
 public class SJQueue<E> implements PureQueue<E> {
-    private LinkedList<E> items;
+    private final LinkedList<E> items;
 
+    /**
+     * No-param constructor that initialized the backing list
+     */
     public SJQueue() {
         this.items = new LinkedList<>();
     }

@@ -1,18 +1,25 @@
 /*
  * Course: CSC-1120
- * Assignment name
- * File name
+ * Stacks and Queues
+ * SJQueue
  * Name: Sean Jones
- * Last Updated:
+ * Last Updated: 10-14-25
  */
 package week7;
 
 import java.util.EmptyStackException;
 import java.util.LinkedList;
 
+/**
+ * An implementation of the PureStack interface
+ * @param <E> the type of element stored in the stack
+ */
 public class SJStack<E> implements PureStack<E> {
-    private LinkedList<E> items;
+    private final LinkedList<E> items;
 
+    /**
+     * No-param constructor for the stack
+     */
     public SJStack() {
         this.items = new LinkedList<>();
     }
@@ -33,7 +40,7 @@ public class SJStack<E> implements PureStack<E> {
         if(items.isEmpty()) {
             throw new EmptyStackException();
         }
-        return items.remove(items.size() - 1);
+        return items.removeLast();
     }
 
     @Override
