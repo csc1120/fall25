@@ -97,6 +97,125 @@ public class SJDoubleLinkedList<E> implements List<E> {
         }
     }
 
+    private class ListIter implements ListIterator<E> {
+        private Node<E> next;
+        private Node<E> lastReturned;
+        private int nextIndex;
+
+        private ListIter() {
+            this(0);
+        }
+
+        private ListIter(int index) {
+            this.next = (index == size) ? null : getNode(index);
+            this.nextIndex = index;
+            this.lastReturned = null;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return next != null;
+        }
+
+        @Override
+        public E next() {
+            if (next == null) {
+                throw new NoSuchElementException();
+            }
+            lastReturned = next;
+            next = next.next;
+            ++nextIndex;
+            return lastReturned.data;
+        }
+
+        @Override
+        public boolean hasPrevious() {
+            return nextIndex > 0;
+        }
+
+        @Override
+        public E previous() {
+            if (!hasPrevious()) {
+                throw new NoSuchElementException();
+            }
+            // If next is null, step back from tail; otherwise step to next.prev
+            next = (next == null) ? tail : next.prev;
+            lastReturned = next;
+            --nextIndex;
+            return lastReturned.data;
+        }
+
+        @Override
+        public int nextIndex() {
+            return nextIndex;
+        }
+
+        @Override
+        public int previousIndex() {
+            return nextIndex - 1;
+        }
+
+        @Override
+        public void remove() {
+            if (lastReturned == null) {
+                throw new IllegalStateException();
+            }
+            Node<E> lrPrev = lastReturned.prev;
+            Node<E> lrNext = lastReturned.next;
+
+            if (lrPrev != null) {
+                lrPrev.next = lrNext;
+            } else {
+                head = lrNext;
+            }
+
+            if (lrNext != null) {
+                lrNext.prev = lrPrev;
+            } else {
+                tail = lrPrev;
+            }
+
+            if (next == lastReturned) {
+                next = lrNext;
+            } else {
+                nextIndex--;
+            }
+            lastReturned = null;
+            --size;
+        }
+
+        @Override
+        public void set(E e) {
+            if (lastReturned == null) {
+                throw new IllegalStateException();
+            }
+            lastReturned.data = e;
+        }
+
+        @Override
+        public void add(E e) {
+            // Insert before 'next' (i.e., at the cursor)
+            Node<E> prev = (next == null) ? tail : next.prev;
+            Node<E> newNode = new Node<>(e, prev, next);
+
+            if (prev == null) {
+                head = newNode;
+            } else {
+                prev.next = newNode;
+            }
+
+            if (next == null) {
+                tail = newNode;
+            } else {
+                next.prev = newNode;
+            }
+
+            ++nextIndex;
+            ++size;
+            lastReturned = null; // per ListIterator contract
+        }
+    }
+
     private Node<E> head;
     private Node<E> tail;
     private int size;
@@ -374,12 +493,12 @@ public class SJDoubleLinkedList<E> implements List<E> {
 
     @Override
     public ListIterator<E> listIterator() {
-        throw new UnsupportedOperationException();
+        return new ListIter();
     }
 
     @Override
     public ListIterator<E> listIterator(int index) {
-        throw new UnsupportedOperationException();
+        return new ListIter(index);
     }
 
     @Override
