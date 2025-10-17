@@ -7,6 +7,8 @@
  */
 package week7;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -107,7 +109,11 @@ public class SJDoubleLinkedList<E> implements List<E> {
         }
 
         private ListIter(int index) {
-            this.next = (index == size) ? null : getNode(index);
+            if(index != SJDoubleLinkedList.this.size) {
+                SJDoubleLinkedList.this.validateIndex(index);
+            }
+            this.next = (index == SJDoubleLinkedList.this.size) ? null :
+                    SJDoubleLinkedList.this.getNode(index);
             this.nextIndex = index;
             this.lastReturned = null;
         }
@@ -119,7 +125,7 @@ public class SJDoubleLinkedList<E> implements List<E> {
 
         @Override
         public E next() {
-            if (next == null) {
+            if(next == null) {
                 throw new NoSuchElementException();
             }
             lastReturned = next;
@@ -135,10 +141,9 @@ public class SJDoubleLinkedList<E> implements List<E> {
 
         @Override
         public E previous() {
-            if (!hasPrevious()) {
+            if(!hasPrevious()) {
                 throw new NoSuchElementException();
             }
-            // If next is null, step back from tail; otherwise step to next.prev
             next = (next == null) ? tail : next.prev;
             lastReturned = next;
             --nextIndex;
@@ -160,25 +165,25 @@ public class SJDoubleLinkedList<E> implements List<E> {
             if (lastReturned == null) {
                 throw new IllegalStateException();
             }
-            Node<E> lrPrev = lastReturned.prev;
-            Node<E> lrNext = lastReturned.next;
+            Node<E> lastReturnedPrevious = lastReturned.prev;
+            Node<E> lastReturnedNext = lastReturned.next;
 
-            if (lrPrev != null) {
-                lrPrev.next = lrNext;
+            if (lastReturnedPrevious != null) {
+                lastReturnedPrevious.next = lastReturnedNext;
             } else {
-                head = lrNext;
+                head = lastReturnedNext;
             }
 
-            if (lrNext != null) {
-                lrNext.prev = lrPrev;
+            if (lastReturnedNext != null) {
+                lastReturnedNext.prev = lastReturnedPrevious;
             } else {
-                tail = lrPrev;
+                tail = lastReturnedPrevious;
             }
 
             if (next == lastReturned) {
-                next = lrNext;
+                next = lastReturnedNext;
             } else {
-                nextIndex--;
+                --nextIndex;
             }
             lastReturned = null;
             --size;
@@ -186,7 +191,7 @@ public class SJDoubleLinkedList<E> implements List<E> {
 
         @Override
         public void set(E e) {
-            if (lastReturned == null) {
+            if(lastReturned == null) {
                 throw new IllegalStateException();
             }
             lastReturned.data = e;
@@ -194,17 +199,16 @@ public class SJDoubleLinkedList<E> implements List<E> {
 
         @Override
         public void add(E e) {
-            // Insert before 'next' (i.e., at the cursor)
             Node<E> prev = (next == null) ? tail : next.prev;
             Node<E> newNode = new Node<>(e, prev, next);
 
-            if (prev == null) {
-                head = newNode;
+            if(prev == null) {
+                SJDoubleLinkedList.this.head = newNode;
             } else {
                 prev.next = newNode;
             }
 
-            if (next == null) {
+            if(next == null) {
                 tail = newNode;
             } else {
                 next.prev = newNode;
@@ -212,7 +216,7 @@ public class SJDoubleLinkedList<E> implements List<E> {
 
             ++nextIndex;
             ++size;
-            lastReturned = null; // per ListIterator contract
+            lastReturned = null;
         }
     }
 
@@ -256,12 +260,12 @@ public class SJDoubleLinkedList<E> implements List<E> {
     }
 
     @Override
-    public Iterator<E> iterator() {
+    public @NotNull Iterator<E> iterator() {
         return new Iter();
     }
 
     @Override
-    public Object[] toArray() {
+    public Object @NotNull [] toArray() {
         Object[] result = new Object[this.size];
         Iterator<E> it = this.iterator();
         for (int i = 0; i < this.size; ++i) { // O(n)
@@ -272,7 +276,7 @@ public class SJDoubleLinkedList<E> implements List<E> {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> T[] toArray(T[] a) {
+    public <T> T @NotNull [] toArray(T[] a) {
         if (a.length < this.size) {
             a = (T[]) new Object[this.size];
         }
@@ -348,7 +352,8 @@ public class SJDoubleLinkedList<E> implements List<E> {
     }
 
     @Override
-    public boolean addAll(int index, Collection<? extends E> c) throws IndexOutOfBoundsException {
+    public boolean addAll(int index, @NotNull Collection<? extends E> c)
+            throws IndexOutOfBoundsException {
         if (index != this.size) {
             validateIndex(index);
         }
@@ -367,12 +372,12 @@ public class SJDoubleLinkedList<E> implements List<E> {
 
 
     @Override
-    public boolean removeAll(Collection<?> c) {
+    public boolean removeAll(@NotNull Collection<?> c) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public boolean retainAll(Collection<?> c) {
+    public boolean retainAll(@NotNull Collection<?> c) {
         throw new UnsupportedOperationException();
     }
 
@@ -492,17 +497,17 @@ public class SJDoubleLinkedList<E> implements List<E> {
     }
 
     @Override
-    public ListIterator<E> listIterator() {
+    public @NotNull ListIterator<E> listIterator() {
         return new ListIter();
     }
 
     @Override
-    public ListIterator<E> listIterator(int index) {
+    public @NotNull ListIterator<E> listIterator(int index) {
         return new ListIter(index);
     }
 
     @Override
-    public List<E> subList(int fromIndex, int toIndex) {
+    public @NotNull List<E> subList(int fromIndex, int toIndex) {
         throw new UnsupportedOperationException();
     }
 }
