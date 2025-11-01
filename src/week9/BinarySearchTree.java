@@ -39,7 +39,6 @@ public class BinarySearchTree<E extends Comparable<E>> extends BinaryTree<E>
      * Recursive add method that uses binary search to find the location to place
      * the new node. If the element already exists in the tree, no new node is added
      * to the tree.
-     *
      * The element returns either the new node or, if no new node is
      * created, either because there is a duplicate element or the node is merely
      * on the path towards location where the new element is stored, the current
@@ -118,7 +117,56 @@ public class BinarySearchTree<E extends Comparable<E>> extends BinaryTree<E>
 
     @Override
     public E delete(E e) {
-        return null;
+        this.root = delete(e, this.root);
+        return deleteReturn;
+    }
+
+    private Node<E> delete(E e, Node<E> node) {
+        // base case
+        if(node == null) {
+            deleteReturn = null;
+        } else if(node.data.compareTo(e) == 0) {
+            deleteReturn = node.data;
+            // remove
+            // case 1 - left is null
+            if(node.left == null) {
+                return node.right; // either null or right child
+            }
+            if(node.right == null) {
+                return node.left; // only left child
+            }
+            // case 3 - two children
+            // find the largest value in left subtree
+            // remove largest of the left subtree
+            // replace value of the node being removed with the largest left subtree value
+            node.data = findLargestChild(node);
+
+        } else if (node.data.compareTo(e) > 0) {
+            // go left
+            return delete(e, node.left);
+        } else {
+            return delete(e, node.right);
+        }
+        return node;
+    }
+
+    /**
+     * Traverses left, the right until it finds the furthers right node.
+     * Removes this node and returns the data stored in the removed node
+     * @param node the possible parent of the node with the largest value
+     * @return the data from the removed node
+     */
+    private E findLargestChild(Node<E> node) {
+        E result;
+        // base case
+        if(node.right.right == null) { // largest value
+            result = node.right.data;
+            node.right = node.right.left; // removed node
+        } else {
+            // keep looking
+            result = findLargestChild(node.right);
+        }
+        return result;
     }
 
     @Override
