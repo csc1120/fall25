@@ -7,8 +7,6 @@
  */
 package week7;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -260,12 +258,12 @@ public class SJDoubleLinkedList<E> implements List<E> {
     }
 
     @Override
-    public @NotNull Iterator<E> iterator() {
+    public Iterator<E> iterator() {
         return new Iter();
     }
 
     @Override
-    public Object @NotNull [] toArray() {
+    public Object[] toArray() {
         Object[] result = new Object[this.size];
         Iterator<E> it = this.iterator();
         for (int i = 0; i < this.size; ++i) { // O(n)
@@ -276,7 +274,7 @@ public class SJDoubleLinkedList<E> implements List<E> {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> T @NotNull [] toArray(T[] a) {
+    public <T> T[] toArray(T[] a) {
         if (a.length < this.size) {
             a = (T[]) new Object[this.size];
         }
@@ -352,7 +350,7 @@ public class SJDoubleLinkedList<E> implements List<E> {
     }
 
     @Override
-    public boolean addAll(int index, @NotNull Collection<? extends E> c)
+    public boolean addAll(int index, Collection<? extends E> c)
             throws IndexOutOfBoundsException {
         if (index != this.size) {
             validateIndex(index);
@@ -372,12 +370,12 @@ public class SJDoubleLinkedList<E> implements List<E> {
 
 
     @Override
-    public boolean removeAll(@NotNull Collection<?> c) {
+    public boolean removeAll(Collection<?> c) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public boolean retainAll(@NotNull Collection<?> c) {
+    public boolean retainAll(Collection<?> c) {
         throw new UnsupportedOperationException();
     }
 
@@ -497,17 +495,17 @@ public class SJDoubleLinkedList<E> implements List<E> {
     }
 
     @Override
-    public @NotNull ListIterator<E> listIterator() {
+    public ListIterator<E> listIterator() {
         return new ListIter();
     }
 
     @Override
-    public @NotNull ListIterator<E> listIterator(int index) {
+    public ListIterator<E> listIterator(int index) {
         return new ListIter(index);
     }
 
     @Override
-    public @NotNull List<E> subList(int fromIndex, int toIndex) {
+    public List<E> subList(int fromIndex, int toIndex) {
         throw new UnsupportedOperationException();
     }
 }
