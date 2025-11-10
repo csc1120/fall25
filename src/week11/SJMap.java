@@ -9,9 +9,11 @@ package week11;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Simple, incomplete implementation of a Map. Missing several null checks
@@ -126,26 +128,29 @@ public class SJMap<K, V> implements Map<K, V> {
 
     @Override
     public void putAll(Map<? extends K, ? extends V> m) {
-
+        Set<? extends Map.Entry<? extends K, ? extends V>> set = m.entrySet();
+        for(Map.Entry<? extends K, ? extends V> e : set) {
+            this.put(e.getKey(), e.getValue());
+        }
     }
 
     @Override
     public void clear() {
-
+        this.list.clear();
     }
 
     @Override
     public Set<K> keySet() {
-        return Set.of();
+        return list.stream().map(e -> e.key).collect(Collectors.toSet());
     }
 
     @Override
     public Collection<V> values() {
-        return List.of();
+        return list.stream().map(e -> e.value).toList();
     }
 
     @Override
     public Set<Map.Entry<K, V>> entrySet() {
-        return Set.of();
+        return new HashSet<>(list);
     }
 }
