@@ -25,6 +25,11 @@ public class Person {
         this.age = age;
     }
 
+    // Overloaded constructor
+    public Person() {
+        this("John Doe", 0, 0);
+    }
+
     // getter rules
     // 1. always public
     // 2. always return type of the variable

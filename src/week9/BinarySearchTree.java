@@ -3,10 +3,12 @@
  * Binary Trees
  * BinarySearchTree
  * Name: Sean Jones
- * Last Updated: 10-28-25
+ * Last Updated: 11-4-25
  */
 package week9;
 
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -14,7 +16,45 @@ import java.util.List;
  * @param <E> the element type store in the tree
  */
 public class BinarySearchTree<E extends Comparable<E>> extends BinaryTree<E>
-        implements SearchTree<E> {
+        implements SearchTree<E>, Iterable<E> {
+    private class Iter implements Iterator<E> {
+        private final LinkedList<Node<E>> queue = new LinkedList<>();
+        private Node<E> lastReturned;
+
+        private Iter() {
+            addNodes(BinarySearchTree.this.root);
+            this.lastReturned = null;
+        }
+
+        private void addNodes(Node<E> node) {
+            if(node != null) {
+                addNodes(node.left);
+                queue.offer(node);
+                addNodes(node.right);
+            }
+        }
+
+        @Override
+        public boolean hasNext() {
+            return !queue.isEmpty();
+        }
+
+        @Override
+        public E next() {
+            if(queue.isEmpty()) {
+                throw new IllegalStateException();
+            } else {
+                this.lastReturned = this.queue.poll();
+                return lastReturned.data;
+            }
+        }
+
+        @Override
+        public void remove() {
+            Iterator.super.remove();
+        }
+    }
+
     /**
      * Stores the result of adding to the tree. This is needed because
      * the recursive add method needs to return a Node to be added
@@ -177,5 +217,14 @@ public class BinarySearchTree<E extends Comparable<E>> extends BinaryTree<E>
     @Override
     public List<E> toList() {
         return List.of();
+    }
+
+    /**
+     * Returns a new iterator that will return values in-order
+     * @return a new iterator
+     */
+    @Override
+    public Iterator<E> iterator() {
+        return new Iter();
     }
 }
