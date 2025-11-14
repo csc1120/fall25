@@ -14,6 +14,7 @@ import java.util.Set;
 
 /**
  * A simple HashMap implementation using linear probing
+ *
  * @param <K> the element type for the key
  * @param <V> the element type for the value
  */
@@ -50,8 +51,11 @@ public class SJHashMapLinearProbing<K, V> implements Map<K, V> {
         }
     }
 
+    private static final double LOAD_FACTOR_THRESHOLD = 0.75;
     private Entry<K, V>[] entries;
+    private final Entry<K, V> deleted = new Entry<>(null, null);
     private int numKeys;
+    private int numDeletes;
 
     /**
      * No-param constructor that sets the starting capacity at 11
@@ -61,6 +65,7 @@ public class SJHashMapLinearProbing<K, V> implements Map<K, V> {
         final int startingCapacity = 11;
         entries = new Entry[startingCapacity];
         numKeys = 0;
+        numDeletes = 0;
     }
 
     @Override
@@ -75,11 +80,11 @@ public class SJHashMapLinearProbing<K, V> implements Map<K, V> {
 
     @Override
     public boolean containsKey(Object key) {
-        if(key == null) {
+        if (key == null) {
             return false;
         }
         int index = findIndex(key);
-        while(entries[index] != null && !entries[index].key.equals(key)) {
+        while (entries[index] != null && !entries[index].key.equals(key)) {
             index = ++index % entries.length;
         }
         return entries[index] != null;
@@ -87,22 +92,68 @@ public class SJHashMapLinearProbing<K, V> implements Map<K, V> {
 
     @Override
     public boolean containsValue(Object value) {
-        // linear search
+        for (Entry<K, V> e : entries) {
+            if (e != null && e.value.equals(value)) {
+                return true;
+            }
+        }
         return false;
     }
 
     @Override
     public V get(Object key) {
-        return null;
+        int index = findIndex(key);
+        while (entries[index] != null && !entries[index].key.equals(key)) {
+            index = ++index % entries.length;
+        }
+        return entries[index] == null ? null : entries[index].value;
     }
 
     @Override
     public V put(K key, V value) {
-        return null;
+        // check if enough room
+        if ((double) (numKeys + numDeletes) / entries.length >= LOAD_FACTOR_THRESHOLD) {
+            rehash();
+        }
+        int index = findIndex(key);
+        // find null
+        while (entries[index] != null && entries[index].key != null &&
+                !entries[index].key.equals(key)) {
+            index = ++index % entries.length;
+        }
+        V result = value;
+        // check if exists
+        if(entries[index].key.equals(key)) {
+            // exists
+            // replace the value
+            result = entries[index].value;
+            entries[index].value = value;
+        } else {
+            // add it
+            entries[index] = new Entry<>(key, value);
+        }
+        ++numKeys;
+        return result;
     }
 
     @Override
     public V remove(Object key) {
+        if(key == null) {
+            return null;
+        }
+        int index = findIndex(key);
+        while (entries[index] != null && entries[index].key != null
+                && !entries[index].key.equals(key)) {
+            index = ++index % entries.length;
+        }
+        if(entries[index] == null) {
+            return null;
+        }
+        // remove it
+        V result = entries[index].value;
+        entries[index] = deleted;
+        --numKeys;
+        ++numDeletes;
         return null;
     }
 
@@ -133,9 +184,20 @@ public class SJHashMapLinearProbing<K, V> implements Map<K, V> {
 
     private int findIndex(Object key) {
         int index = key.hashCode() % entries.length;
-        if(index < 0) {
+        if (index < 0) {
             index += entries.length;
         }
         return index;
+    }
+
+    private void rehash() {
+        Entry<K, V>[] old = entries;
+        entries = new Entry[entries.length * 2];
+        numKeys = 0;
+        for(Entry<K, V> e : old) {
+            if(e != null && e.key != null) {
+                this.put(e.key, e.value);
+            }
+        }
     }
 }
