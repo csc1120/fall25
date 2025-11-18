@@ -1,12 +1,16 @@
 /*
  * Course: CSC-1120
- * Assignment name
- * File name
+ * Sorting
+ * Selection Sort
  * Name: Sean Jones
- * Last Updated:
+ * Last Updated: 11-17-25
  */
 package week12;
 
+/**
+ * Selection sort implementation. For each index starting at zero, iterate through the
+ * array and find the minimum value. Swap the minimum value with the current index.
+ */
 public class SelectionSort implements SortAlgorithm {
     @Override
     public <T extends Comparable<T>> void sort(T[] table) { // O(n^2)
