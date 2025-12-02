@@ -5,7 +5,7 @@
  * Name: Sean Jones
  * Last Updated: 11-4-25
  */
-package week9;
+package week14;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -67,7 +67,7 @@ public class BinarySearchTree<E extends Comparable<E>> extends BinaryTree<E>
      * because the recursive delete method needs to return a Node to replace
      * the deleted node and cannot return the data.
      */
-    protected E deleteReturn;
+    private E deleteReturn;
 
     @Override
     public boolean add(E e) {

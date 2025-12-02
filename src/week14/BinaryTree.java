@@ -5,7 +5,7 @@
  * Name: Sean Jones
  * Last Updated: 10-28-25
  */
-package week9;
+package week14;
 
 import java.util.function.BiConsumer;
 
@@ -14,12 +14,12 @@ import java.util.function.BiConsumer;
  * @param <E> the element stored in the tree
  */
 public class BinaryTree<E> {
-    public static class Node<E> {
-        public E data;
-        public Node<E> left;
-        public Node<E> right;
+    protected static class Node<E> {
+        protected E data;
+        protected Node<E> left;
+        protected Node<E> right;
 
-        public Node(E data) {
+        protected Node(E data) {
             this.data = data;
             this.left = null;
             this.right = null;
