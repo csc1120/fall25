@@ -39,34 +39,33 @@ public class AVLTree<E extends Comparable<E>> extends BinarySearchTreeWithRotate
         return addResult;
     }
 
-    private Node<E> add(AVLNode<E> localRoot, E item) {
+    private AVLNode<E> add(AVLNode<E> localRoot, E item) {
         // if the value doesn't exist, we will hit a null child node
         if(localRoot == null) {
             // add the node
             addResult = true; // set the result of add to true (we are adding)
             increase = true; // Because we are adding, a balance is changing
-            return new AVLNode<>(item); // return the new node to its parent
-        }
-        // otherwise keep looking
-        if(item.compareTo(localRoot.data) < 0) { // added data less than current data
-            add((AVLNode<E>) localRoot.left, item); // go left
+            localRoot = new AVLNode<>(item); // return the new node to its parent
+            // otherwise keep looking
+        } else if(item.compareTo(localRoot.data) < 0) { // added data less than current data
+            localRoot.left = add((AVLNode<E>) localRoot.left, item); // go left
             if(increase) { // when recursion finishes, did we add?
                 decrementBalance(localRoot); // we added to the left, so decrement current balance
             }
             // do I need to rebalance?
             if(localRoot.balance < AVLNode.LEFT_HEAVY) { // critically left imbalanced
                 increase = false; // we are fixing the increase now
-                return rebalanceLeft(localRoot); // do the rotations and balance updates
+                localRoot = rebalanceLeft(localRoot); // do the rotations and balance updates
             }
         } else if (item.compareTo(localRoot.data) > 0) { // added data greater than current data
-            add((AVLNode<E>) localRoot.right, item); // go right
+            localRoot.right = add((AVLNode<E>) localRoot.right, item); // go right
             if(increase) { // when recursion finishes, did we add?
                 incrementBalance(localRoot); // we added to the right, so increment current balance
             }
             // do I need to rebalance?
             if(localRoot.balance > AVLNode.RIGHT_HEAVY) { // critically right imbalanced
                 increase = false; // we are fixing the increase now
-                return rebalanceRight(localRoot); // do the rotations and balance updates
+                localRoot = rebalanceRight(localRoot); // do the rotations and balance updates
             }
         } else { // duplicate. Do not add.
             increase = false;
@@ -114,7 +113,7 @@ public class AVLTree<E extends Comparable<E>> extends BinarySearchTreeWithRotate
     private AVLNode<E> rebalanceRight(AVLNode<E> localRoot) {
         // how is it imbalanced? It is either R-R or R-L, since we already know
         // the root is right imbalanced
-        if(((AVLNode<E>)localRoot.left).balance < AVLNode.BALANCED) {
+        if(((AVLNode<E>)localRoot.right).balance < AVLNode.BALANCED) {
             // The right child is left imbalanced, so we are R-L imbalanced
 
             // rotate R subtree right to make the tree R-R imbalanced
@@ -152,7 +151,7 @@ public class AVLTree<E extends Comparable<E>> extends BinarySearchTreeWithRotate
 
     private void updateRightBalances(AVLNode<E> localRoot, AVLNode<E> rightChild) {
         // Get the right child's left child, as this is only called on an R-L imbalanced tree
-        AVLNode<E> rightLeftChild = (AVLNode<E>) rightChild.right;
+        AVLNode<E> rightLeftChild = (AVLNode<E>) rightChild.left;
         // Three possibilities:
         if (rightLeftChild.balance > AVLNode.BALANCED) {
             // The right child's left subtree is right imbalanced (R-L-R)
@@ -183,7 +182,7 @@ public class AVLTree<E extends Comparable<E>> extends BinarySearchTreeWithRotate
         if(localRoot == null) {
             this.decrease = false;
             this.deleteReturn = null;
-        } else if(localRoot.data.compareTo(target) < 0) { // go left
+        } else if(localRoot.data.compareTo(target) > 0) { // go left
             localRoot.left = delete((AVLNode<E>) localRoot.left, target);
             if(decrease) { // we removed something
                 incrementBalance(localRoot); // we removed from the left, so increment balance
@@ -191,7 +190,7 @@ public class AVLTree<E extends Comparable<E>> extends BinarySearchTreeWithRotate
                     localRoot = rebalanceRightLeft(localRoot); // rebalance
                 }
             }
-        } else if(localRoot.data.compareTo(target) > 0) { // go right
+        } else if(localRoot.data.compareTo(target) < 0) { // go right
             localRoot.right = delete((AVLNode<E>) localRoot.right, target);
             if(decrease) { // we removed something
                 decrementBalance(localRoot); // we removed from the right, so decrement

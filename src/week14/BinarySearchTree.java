@@ -67,7 +67,7 @@ public class BinarySearchTree<E extends Comparable<E>> extends BinaryTree<E>
      * because the recursive delete method needs to return a Node to replace
      * the deleted node and cannot return the data.
      */
-    private E deleteReturn;
+    protected E deleteReturn;
 
     @Override
     public boolean add(E e) {
